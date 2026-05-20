@@ -25,6 +25,23 @@ func TestArea(t *testing.T) {
 		want := 1164.1564276958677
 		checkArea(t, circle, want)
 	})
+
+	// Table Driven Tests
+	areaTests := []struct {
+		shape Shape
+		want  float64
+	}{
+		{Rectangle{12.0, 6.0}, 72.0},
+		{Circle{10}, 314.1592653589793},
+		{Triangle{7.0, 13.0, 5.0, 12.0}, 30.0},
+	}
+
+	for _, tt := range areaTests {
+		got := tt.shape.Area()
+		if got != tt.want {
+			t.Errorf("got %g want %g", got, tt.want)
+		}
+	}
 }
 
 // Testing Perimeter
@@ -50,4 +67,21 @@ func TestPerimeter(t *testing.T) {
 		want := 120.95131716320704
 		checkPerimeter(t, circle, want)
 	})
+
+	// Table Driven Test
+	perimeterTests := []struct {
+		shape Shape
+		want  float64
+	}{
+		{Rectangle{12.0, 9.0}, 42.0},
+		{Circle{19.25}, 120.95131716320704},
+		{Triangle{7.0, 13.0, 5.0, 12.0}, 25.0},
+	}
+
+	for _, tt := range perimeterTests {
+		got := tt.shape.Perimeter()
+		if got != tt.want {
+			t.Errorf("got %g want %g", got, tt.want)
+		}
+	}
 }
