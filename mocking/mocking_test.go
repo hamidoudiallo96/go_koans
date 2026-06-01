@@ -2,26 +2,60 @@ package main
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
+	"time"
 )
 
 func TestCountdown(t *testing.T) {
-	buffer := &bytes.Buffer{}
-	sleeper := &SleepCounter{}
+	t.Run("prints 3 to Go!", func(t *testing.T) {
+		buffer := &bytes.Buffer{}
+		spySleeper := &SpySleeper{}
+		Countdown(buffer, spySleeper)
 
-	Countdown(buffer, sleeper)
-
-	got := buffer.String()
-	want := `3
+		got := buffer.String()
+		want := `3
 2
 1
 Go!`
 
-	if got != want {
-		t.Errorf("got %q want %q", got, want)
-	}
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
 
-	if sleeper.Calls != 3 {
-		t.Errorf("not enough calls to sleeper, want 3 got %d", sleeper.Calls)
+		if spySleeper.Calls != 3 {
+			t.Errorf("not enough calls made, go %d want %d", spySleeper.Calls, 3)
+		}
+	})
+
+	t.Run("sleep before every print", func(t *testing.T) {
+		spySleepPrinter := &SpyCountdownOperations{}
+		Countdown(spySleepPrinter, spySleepPrinter)
+
+		want := []string{
+			write,
+			sleep,
+			write,
+			sleep,
+			write,
+			sleep,
+			write,
+		}
+
+		if !reflect.DeepEqual(want, spySleepPrinter.Calls) {
+			t.Errorf("wanted calls %v got %v", want, spySleepPrinter.Calls)
+		}
+	})
+}
+
+func TestConfigurableSleeper(t *testing.T) {
+	sleepTime := 5 * time.Second
+
+	spyTime := &SpyTime{}
+	sleeper := ConfigurableSleeper{sleepTime, spyTime.SetDurationSlept}
+	sleeper.sleep(sleepTime)
+
+	if spyTime.durationSlept != sleepTime {
+		t.Errorf("should have slept for %v but slept for %v", sleepTime, spyTime.durationSlept)
 	}
 }
